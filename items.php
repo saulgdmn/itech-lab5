@@ -35,19 +35,24 @@
             break;
         case "category":
             $category = $_POST['category'];
-            $res = $dbh->query("SELECT items.name name, vendors.name vendor, category.name category, items.price price, items.quantity quantity, items.quality quality FROM items
+            $stm = $dbh->prepare("SELECT items.name name, vendors.name vendor, category.name category, items.price price, items.quantity quantity, items.quality quality FROM items
                 JOIN vendors ON items.fid_vendor = vendors.id_vendor
                 JOIN category ON items.fid_category = category.id_category
-                WHERE category.name = '$category';")->fetchAll(PDO::FETCH_ASSOC);
+                WHERE category.name = ?;");
+            $stm->bindParam(1, $category, PDO::PARAM_STR);
+            $stm->execute();
+            $res = $stm->fetchAll(PDO::FETCH_ASSOC);
             echo build_table($res);
             break;
         case "price":
             $price_low = $_POST['price_low'];
             $price_high = $_POST['price_high'];
-            $res = $dbh->query("SELECT items.name name, vendors.name vendor, category.name category, items.price price, items.quantity quantity, items.quality quality FROM items
+            $stm = $dbh->prepare("SELECT items.name name, vendors.name vendor, category.name category, items.price price, items.quantity quantity, items.quality quality FROM items
                 JOIN vendors ON items.fid_vendor = vendors.id_vendor
                 JOIN category ON items.fid_category = category.id_category
-                WHERE items.price BETWEEN $price_low AND $price_high;")->fetchAll(PDO::FETCH_ASSOC);
+                WHERE items.price BETWEEN ? AND ?;");
+            $stm->execute(array($price_low, $price_high));
+            $res = $stm->fetchAll(PDO::FETCH_ASSOC);
             echo build_table($res);
             break;
     }
